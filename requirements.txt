@@ -1,6 +1,6 @@
+tensorflow==2.5
 lxml
 tqdm
-tensorflow==2.5
 absl-py
 easydict
 matplotlib
@@ -9,3 +9,5 @@ scipy
 zmq
 firebase_admin
 python-dotenv
+schedule
+redis

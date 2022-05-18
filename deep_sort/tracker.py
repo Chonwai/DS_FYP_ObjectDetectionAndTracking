@@ -8,6 +8,9 @@ from .track import Track
 from utils.utils import Utils
 import uuid
 from core.config import cfg
+import redis
+
+r = redis.Redis(host='redis', port=6379, decode_responses=True)
 
 class Tracker:
     """
@@ -39,7 +42,7 @@ class Tracker:
 
     """
 
-    def __init__(self, metric, max_iou_distance=0.7, max_age=100, n_init=3):
+    def __init__(self, metric, max_iou_distance=0.7, max_age=70, n_init=3):
         self.metric = metric
         self.max_iou_distance = max_iou_distance
         self.max_age = max_age
@@ -78,7 +81,7 @@ class Tracker:
         for track_idx in unmatched_tracks:
             self.tracks[track_idx].mark_missed()
         for detection_idx in unmatched_detections:
-            self._initiate_track(detections[detection_idx], height)
+            self._initiate_track(detections[detection_idx])
         self.tracks = [t for t in self.tracks if not t.is_deleted()]
 
         # Update distance metric.
@@ -133,7 +136,7 @@ class Tracker:
         unmatched_tracks = list(set(unmatched_tracks_a + unmatched_tracks_b))
         return matches, unmatched_tracks, unmatched_detections
 
-    def _initiate_track(self, detection, height):
+    def _initiate_track(self, detection):
         mean, covariance = self.kf.initiate(detection.to_xyah())
         class_name = detection.get_class()
 
@@ -146,11 +149,7 @@ class Tracker:
         circle = Utils.calculateBottomCenterCoordinate(
                 int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3]))
 
-        stateInArea = Utils.isInside(0, cfg.APP.TOGGLE_Y, circle[0], circle[1])
-        # if (height/2 - yMidT) >= 0:
-        #     stateInArea = 1
-        # elif (height/2 - yMidT) <= 0:
-        #     stateInArea = 0
+        stateInArea = Utils.isInside(circle[0], circle[1], r.get('dangerousArea'))
 
         self.tracks.append(Track(
             mean, covariance, self._next_id, self.color, self.n_init, self.max_age,

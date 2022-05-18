@@ -71,6 +71,8 @@ class Track:
         self.color = color
         self.hits = 1
         self.age = 1
+        self.helmet_class = None
+        self.cloth_class = None
         self.time_since_update = 0
 
         self.state = TrackState.Tentative
@@ -118,6 +120,18 @@ class Track:
 
     def get_class(self):
         return self.class_name
+    
+    def get_helmet_class(self):
+        return self.helmet_class
+    
+    def get_cloth_class(self):
+        return self.cloth_class
+    
+    def set_helmet_class(self, helmet_class):
+        self.helmet_class = helmet_class
+        
+    def set_cloth_class(self, cloth_class):
+        self.cloth_class = cloth_class
 
     def predict(self, kf):
         """Propagate the state distribution to the current time step using a

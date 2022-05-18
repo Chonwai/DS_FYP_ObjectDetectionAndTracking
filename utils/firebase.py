@@ -19,3 +19,10 @@ class Firebase:
             u'people_out': person['people_out'],
             u'created_at': person['created_at'],
         })
+        
+    def getArea(self):
+        docRef = self.db.collection(u'DangerousArea').document(u'Camera_1')
+        doc = docRef.get().to_dict()
+        return doc['area']
+        
+        
